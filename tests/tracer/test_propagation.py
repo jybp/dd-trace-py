@@ -9,6 +9,7 @@ from ddtrace.propagation.http import HTTP_HEADER_ORIGIN
 from ddtrace.propagation.http import HTTP_HEADER_PARENT_ID
 from ddtrace.propagation.http import HTTP_HEADER_SAMPLING_PRIORITY
 from ddtrace.propagation.http import HTTP_HEADER_TRACE_ID
+from ddtrace.propagation.http import _parse_dd_tags_header
 from ddtrace.propagation.utils import get_wsgi_header
 from tests.utils import DummyTracer
 
@@ -125,3 +126,14 @@ def test_extract_bad_values(trace_id, parent_span_id, sampling_priority, dd_orig
 class TestPropagationUtils(object):
     def test_get_wsgi_header(self):
         assert get_wsgi_header("x-datadog-trace-id") == "HTTP_X_DATADOG_TRACE_ID"
+
+
+@pytest.mark.parametrize("header,expected", [])
+def test_parse_dd_tags_header(header, expected):
+    assert expected == _parse_dd_tags_header(header)
+
+
+@pytest.mark.parametrize("header", [])
+def test_parse_dd_tags_header_malformed(header):
+    with pytest.raises(Exception):
+        _parse_dd_tags_header(header)
