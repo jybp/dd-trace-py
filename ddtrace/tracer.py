@@ -741,7 +741,8 @@ class Tracer(object):
             assert parent2.parent_id is None
             parent2.finish()
         """
-        frame = stack()[1]
+        filename = stack()[1].filename
+        lineno = stack()[1].lineno
         return self.start_span(
             name,
             child_of=self.context_provider.active(),
@@ -749,8 +750,8 @@ class Tracer(object):
             resource=resource,
             span_type=span_type,
             activate=True,
-            span_file=frame.filename,
-            span_line=frame.lineno
+            span_file=filename,
+            span_line=lineno
         )
 
     trace = _trace
