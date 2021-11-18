@@ -14,6 +14,7 @@ from typing import Optional
 from typing import Set
 from typing import TypeVar
 from typing import Union
+from inspect import stack
 
 from ddtrace import config
 from ddtrace.filters import TraceFilter
@@ -449,6 +450,8 @@ class Tracer(object):
         resource=None,  # type: Optional[str]
         span_type=None,  # type: Optional[str]
         activate=False,  # type: bool
+        span_file=None,  # type: Optional[str]
+        span_line=None,  # type: Optional[int]
     ):
         # type: (...) -> Span
         """Return a span that represents an operation called ``name``.
@@ -611,6 +614,10 @@ class Tracer(object):
         if config.env:
             span._set_str_tag(ENV_KEY, config.env)
 
+        if span_file is not None and span_line is not None:
+            span._set_str_tag("_dd.span.file", span_file)
+            span._set_str_tag("_dd.span.line", str(span_line))
+
         # Only set the version tag on internal spans.
         if config.version:
             root_span = self.current_root_span()
@@ -734,6 +741,7 @@ class Tracer(object):
             assert parent2.parent_id is None
             parent2.finish()
         """
+        frame = stack()[1]
         return self.start_span(
             name,
             child_of=self.context_provider.active(),
@@ -741,6 +749,8 @@ class Tracer(object):
             resource=resource,
             span_type=span_type,
             activate=True,
+            span_file=frame.filename,
+            span_line=frame.lineno
         )
 
     trace = _trace
