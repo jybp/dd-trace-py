@@ -1,4 +1,5 @@
 import string
+from typing import Dict
 
 
 _whitespace = set(string.whitespace)
