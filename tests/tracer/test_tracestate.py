@@ -23,6 +23,8 @@ from ddtrace.propagation._tracestate import parse_tracestate_header
         ("a=1,b=2,c=3", {"a": "1", "b": "2", "c": "3"}),
         # spaces and tabs are ignored
         ("  key = value , ", {"key": "value"}),
+        # tenant@vendor format key
+        ("tenant@vendor=value", {"tenant@vendor": "value"}),
     ],
 )
 def test_parse_tracestate_header(header, expected):
@@ -47,6 +49,10 @@ def test_parse_tracestate_header(header, expected):
         "key\t=value\r\n",
         # Disallowed starting key characters
         "_key=value",
+        # Disallow multiple '@' in the key
+        "tenant@vendor@vendor=value",
+        # Disallow non-ascii after '@' in key
+        "tenant@vendor5=value",
     ],
 )
 def test_parse_tracestate_header_malformed(header):
